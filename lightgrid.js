@@ -41,16 +41,47 @@
       'vSpacing': 10,
       'selector': 'div',
       'aspectRatio': 1,
-      'hBox': 0
+      'hBox': 0,
+      'resize': false
     }, options);
 
     // Aux vars.
     var vs = s.vSpacing * 2,
         hs = s.hSpacing * 2,
+        self = this,
         boxWidth = (this.width() - (s.cols - 1) * vs) / s.cols,
         boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio)),
         $elements = $(s.selector, this),
         numRows = 0;
+
+    // Aux functions
+    var configElem = function($elm) {
+      numRows = Math.max(numRows, $elm.data('x') + $elm.data('rows'));
+
+      // Set element position and dimensions on screen.
+      $elm.css({
+        'position': 'absolute',
+        'display': 'block',
+        'width': $elm.data('cols') * (boxWidth + vs) - vs,
+        'height': $elm.data('rows') * (boxHeight + hs) - hs,
+        'left': $elm.data('y') * (boxWidth + vs),
+        'top': $elm.data('x') * (boxHeight + hs)
+      });
+    };
+
+    // Throttle
+    var waitForFinalEvent = (function() {
+      var timers = {};
+      return function(callback, ms, uniqueId) {
+        if (!uniqueId) {
+          uniqueId = 'noId';
+        }
+        if (timers[uniqueId]) {
+          clearTimeout (timers[uniqueId]);
+        }
+        timers[uniqueId] = setTimeout(callback, ms);
+      };
+    })();
 
     // Grid position must be relative or absolute in order to position posts
     // with position absolute in relation to grid. If the grid element position
@@ -70,24 +101,26 @@
     }
 
     $elements.each(function() {
-      var $elm = $(this);
-
-      numRows = Math.max(numRows, $elm.data('x') + $elm.data('rows'));
-
-      // Set element position and dimensions on screen.
-      $elm.css({
-        'position': 'absolute',
-        'display': 'block',
-        'width': $elm.data('cols') * (boxWidth + vs) - vs,
-        'height': $elm.data('rows') * (boxHeight + hs) - hs,
-        'left': $elm.data('y') * (boxWidth + vs),
-        'top': $elm.data('x') * (boxHeight + hs)
-      });
-
+      configElem($(this));
     });
 
     // 4. Set the grid total height.
     this.height(numRows * (boxHeight + hs));
+
+    if (s.resize) {
+      $(window).resize(function() {
+        waitForFinalEvent(function () {
+          // Recalculates boxWidth and boxHeight with new width.
+          boxWidth = (self.width() - (s.cols - 1) * vs) / s.cols;
+          boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio));
+
+          // Reconfigure elements.
+          $elements.each(function() {
+            configElem($(this));
+          });
+        });
+      });
+    }
 
     return this;
   };
