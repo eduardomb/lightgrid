@@ -16,11 +16,11 @@
     <div data-rows="2" data-cols="1" data-x="0" data-y="3">Element #3</div>
     <div data-rows="1" data-cols="3" data-x="1" data-y="0">Element #4</div>
 	</div>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="lightgrid.js"></script>
   <script type="text/javascript">
   $(function() {
-    $('#grid').lightgrid({cols: 4, aspectRatio: 0.5});
+    $('#grid').lightgrid({cols: 4, aspectRatio: 0.5, fluid: true});
     //$('#grid').lightgrid({cols: 4, hBox: 300});
   });
   </script>

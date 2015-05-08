@@ -42,7 +42,7 @@
       'selector': 'div',
       'aspectRatio': 1,
       'hBox': 0,
-      'resize': false
+      'fluid': false
     }, options);
 
     // Aux vars.
@@ -66,6 +66,17 @@
         'height': $elm.data('rows') * (boxHeight + hs) - hs,
         'left': $elm.data('y') * (boxWidth + vs),
         'top': $elm.data('x') * (boxHeight + hs)
+      });
+    };
+
+    var redraw = function () {
+      // Recalculates boxWidth and boxHeight with current window width.
+      boxWidth = (self.width() - (s.cols - 1) * vs) / s.cols;
+      boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio));
+
+      // Reconfigure elements.
+      $elements.each(function() {
+        configElem($(this));
       });
     };
 
@@ -107,19 +118,12 @@
     // 4. Set the grid total height.
     this.height(numRows * (boxHeight + hs));
 
-    if (s.resize) {
+    if (s.fluid) {
       $(window).resize(function() {
-        waitForFinalEvent(function () {
-          // Recalculates boxWidth and boxHeight with new width.
-          boxWidth = (self.width() - (s.cols - 1) * vs) / s.cols;
-          boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio));
-
-          // Reconfigure elements.
-          $elements.each(function() {
-            configElem($(this));
-          });
-        });
+        waitForFinalEvent(redraw, 500);
       });
+
+      window.matchMedia('(orientation: portrait)').addListener(redraw);
     }
 
     return this;
