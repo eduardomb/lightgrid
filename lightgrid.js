@@ -33,6 +33,15 @@
 (function($){
   'use strict';
 
+  function getViewportWidth() {
+    var docW = document && document.documentElement.clientWidth,
+        winW = window.innerWidth;
+
+    return docW > winW ? docW : winW;
+  }
+
+  var lastWidth = getViewportWidth();
+
   $.fn.lightgrid = function(options) {
     // Default params.
     var s = $.extend({
@@ -70,14 +79,19 @@
     };
 
     var redraw = function () {
-      // Recalculates boxWidth and boxHeight with current window width.
-      boxWidth = (self.width() - (s.cols - 1) * vs) / s.cols;
-      boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio));
+      // check resize only width
+      if (lastWidth != getViewportWidth()) {
+        // Recalculates boxWidth and boxHeight with current window width.
+        boxWidth = (self.width() - (s.cols - 1) * vs) / s.cols;
+        boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio));
 
-      // Reconfigure elements.
-      $elements.each(function() {
-        configElem($(this));
-      });
+        // Reconfigure elements.
+        $elements.each(function() {
+          configElem($(this));
+        });
+
+        lastWidth = getViewportWidth();
+      }
     };
 
     // Throttle
