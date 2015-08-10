@@ -40,8 +40,6 @@
     return docW > winW ? docW : winW;
   }
 
-  var lastWidth = getViewportWidth();
-
   $.fn.lightgrid = function(options) {
     // Default params.
     var s = $.extend({
@@ -61,7 +59,8 @@
         boxWidth = (this.width() - (s.cols - 1) * vs) / s.cols,
         boxHeight = (s.hBox ? s.hBox : (boxWidth * s.aspectRatio)),
         $elements = $(s.selector, this),
-        numRows = 0;
+        numRows = 0,
+        lastWidth = getViewportWidth();
 
     // Aux functions
     var configElem = function($elm) {
